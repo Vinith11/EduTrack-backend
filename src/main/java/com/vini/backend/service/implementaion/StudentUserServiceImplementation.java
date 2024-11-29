@@ -1,6 +1,7 @@
 package com.vini.backend.service.implementaion;
 
 import com.vini.backend.config.JwtTokenProvider;
+import com.vini.backend.dto.StudentResponseDto;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Student;
 import com.vini.backend.repositories.StudentRepository;
@@ -9,12 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentUserServiceImplementation implements StudentUserService {
 
-    private StudentRepository studentRepository;
-    private JwtTokenProvider jwtTokenProvider;
+    private final StudentRepository studentRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public StudentUserServiceImplementation(StudentRepository studentRepository, JwtTokenProvider jwtTokenProvider) {
         this.studentRepository = studentRepository;
@@ -45,5 +47,18 @@ public class StudentUserServiceImplementation implements StudentUserService {
     @Override
     public List<Student> findAllUsers() {
         return studentRepository.findAllStudentByOrderByUsn();
+    }
+
+    public List<StudentResponseDto> getStudentsByBatch(String batch) {
+        List<Student> students = studentRepository.findByStudentBatch(batch);
+        return students.stream()
+                .map(student -> new StudentResponseDto(
+                        student.getUsn(),
+                        student.getStudentName(),
+                        student.getStudentPhone(),
+                        student.getStudentEmail(),
+                        student.getStudentBatch(),
+                        student.getProjectId()))
+                .collect(Collectors.toList());
     }
 }

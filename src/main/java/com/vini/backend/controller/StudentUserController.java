@@ -1,15 +1,13 @@
 package com.vini.backend.controller;
 
 
+import com.vini.backend.dto.StudentResponseDto;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Student;
 import com.vini.backend.service.StudentUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,5 +34,10 @@ public class StudentUserController {
         return new ResponseEntity<Student>(student,HttpStatus.ACCEPTED);
     }
 
+    @GetMapping("/batch/{batch}")
+    public ResponseEntity<List<StudentResponseDto>> getStudentsByBatch(@PathVariable String batch) {
+        List<StudentResponseDto> response = studentUserService.getStudentsByBatch(batch);
+        return ResponseEntity.ok(response);
+    }
 
 }

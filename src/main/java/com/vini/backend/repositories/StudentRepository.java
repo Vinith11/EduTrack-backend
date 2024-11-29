@@ -15,4 +15,6 @@ public interface StudentRepository extends JpaRepository<Student, String> {
 
     public  Student findByUsn(String usn);
 
+    public List<Student> findByStudentBatch(String batch);
+
 }
