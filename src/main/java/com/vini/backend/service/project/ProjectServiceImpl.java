@@ -208,5 +208,20 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectRepository.delete(project);
     }
+
+    @Override
+    public Project getProjectById(Long projectId) throws NotFoundException {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundException("Project not found."));
+    }
+
+    @Override
+    public List<Student> getAvailabeStudents() throws NotFoundException {
+        List<Student> students = studentRepository.findByProjectIdIsNull();
+        if (students.isEmpty()) {
+            throw new NotFoundException("No available students found.");
+        }
+        return students;
+    }
 }
 

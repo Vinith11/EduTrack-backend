@@ -3,6 +3,7 @@ package com.vini.backend.controller.project;
 import com.vini.backend.exception.NotFoundException;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Faculty;
+import com.vini.backend.models.Student;
 import com.vini.backend.models.project.Project;
 import com.vini.backend.response.ApiResponse;
 import com.vini.backend.service.FacultyUserService;
@@ -38,6 +39,12 @@ public class ProjectController {
             return ResponseEntity.ok(project);
     }
 
+    @GetMapping("/project-by-id/{projectId}")
+    public ResponseEntity<Project> getProjectById(@RequestHeader("Authorization") String jwt, @PathVariable Long projectId) throws NotFoundException, UserException {
+        Project project = projectService.getProjectById(projectId);
+        return ResponseEntity.ok(project);
+    }
+
     @PutMapping("/complete/{projectId}")
     public ResponseEntity<Project> completeProject(@PathVariable Long projectId) throws NotFoundException {
             Project project = projectService.completeProject(projectId);
@@ -55,6 +62,12 @@ public class ProjectController {
     public ResponseEntity<List<Project>> getProjectsByFacultyUidByBatch(@PathVariable String facultyUid, @PathVariable String batch) throws NotFoundException {
             List<Project> projects = projectService.getProjectsByFacultyUidByBatch(facultyUid, batch);
             return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/available-students")
+    public ResponseEntity<List<Student>> getAvailableStudent() throws NotFoundException {
+        List<Student> students = projectService.getAvailabeStudents();
+        return ResponseEntity.ok(students);
     }
 
     @GetMapping("/{batch}")
