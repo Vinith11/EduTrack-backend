@@ -64,9 +64,9 @@ public class ProjectController {
             return ResponseEntity.ok(projects);
     }
 
-    @GetMapping("/available-students")
-    public ResponseEntity<List<Student>> getAvailableStudent() throws NotFoundException {
-        List<Student> students = projectService.getAvailabeStudents();
+    @GetMapping("/available-students/{batch}")
+    public ResponseEntity<List<Student>> getAvailableStudentsByBatch(@PathVariable String batch) throws NotFoundException {
+        List<Student> students = projectService.getAvailableStudentsBatchWise(batch);
         return ResponseEntity.ok(students);
     }
 

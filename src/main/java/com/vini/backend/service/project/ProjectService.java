@@ -15,5 +15,5 @@ public interface ProjectService {
     List<Project> getProjectsByBatch(String batch) throws NotFoundException;
     void deleteProject(Long projectId) throws NotFoundException;
     Project getProjectById(Long projectId) throws NotFoundException;
-    List<Student> getAvailabeStudents() throws NotFoundException;
+    List<Student> getAvailableStudentsBatchWise(String batch) throws NotFoundException;
 }

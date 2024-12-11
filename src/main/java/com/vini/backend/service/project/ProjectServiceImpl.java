@@ -216,12 +216,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<Student> getAvailabeStudents() throws NotFoundException {
-        List<Student> students = studentRepository.findByProjectIdIsNull();
+    public List<Student> getAvailableStudentsBatchWise(String batch) throws NotFoundException {
+        List<Student> students = studentRepository.findByStudentBatchAndProjectIdIsNull(batch);
         if (students.isEmpty()) {
-            throw new NotFoundException("No available students found.");
+            throw new NotFoundException("No available students found for batch: " + batch);
         }
         return students;
     }
+
+
+
 }
 
