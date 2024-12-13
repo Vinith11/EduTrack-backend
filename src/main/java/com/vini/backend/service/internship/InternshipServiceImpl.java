@@ -1,6 +1,7 @@
 package com.vini.backend.service.internship;
 
 import com.vini.backend.exception.NotFoundException;
+import com.vini.backend.models.Student;
 import com.vini.backend.models.internship.Internship;
 import com.vini.backend.repositories.FacultyRepository;
 import com.vini.backend.repositories.InternshipRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class InternshipServiceImpl implements InternshipService {
@@ -91,5 +93,26 @@ public class InternshipServiceImpl implements InternshipService {
         }
 
         return internshipRepository.findByStudentUsn(studentUsn);
+    }
+
+    public List<Internship> getInternshipsByBatch(String batch) throws NotFoundException {
+        // Fetch all students in the given batch
+        List<Student> students = studentRepository.findByStudentBatch(batch);
+
+        if (students.isEmpty()) {
+            throw new NotFoundException("No students found for batch: " + batch);
+        }
+
+        // Extract USNs of students in the batch
+        List<String> studentUsns = students.stream()
+                .map(Student::getUsn)
+                .collect(Collectors.toList());
+
+        // Fetch internships for these USNs
+        List<Internship> internships = internshipRepository.findByStudentUsnIn(studentUsns);
+
+
+
+        return internships;
     }
 }

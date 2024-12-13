@@ -13,4 +13,5 @@ public interface InternshipService {
     Internship updateInternship(Long internshipId, Internship internship) throws NotFoundException;
     void deleteInternship(Long internshipId) throws NotFoundException;
     List<Internship> getInternshipsByStudentUsn(String studentUsn) throws NotFoundException;
+    List<Internship> getInternshipsByBatch(String batch) throws NotFoundException;
 }

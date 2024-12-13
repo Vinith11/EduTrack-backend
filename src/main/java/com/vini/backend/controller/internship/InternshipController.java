@@ -63,4 +63,11 @@ public class InternshipController {
         List<Internship> internships = internshipService.getInternshipsByStudentUsn(studentUsn);
         return new ResponseEntity<>(internships, HttpStatus.OK);
     }
+
+    @GetMapping("all-by-batch/{batch}")
+    public ResponseEntity<List<Internship>> getInternshipsByBatch(@PathVariable String batch) throws NotFoundException {
+        List<Internship> internships = internshipService.getInternshipsByBatch(batch);
+
+        return ResponseEntity.ok(internships);
+    }
 }

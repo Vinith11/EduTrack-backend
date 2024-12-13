@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface InternshipRepository extends JpaRepository<Internship, Long> {
     List<Internship> findByStudentUsn(String studentUsn);
+    List<Internship> findByStudentUsnIn(List<String> studentUsns);
 }

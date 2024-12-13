@@ -27,10 +27,8 @@ public class ProjectController {
 
     @PostMapping("/create")
     public ResponseEntity<Project> createProject(@RequestBody Project project) throws NotFoundException {
-
             Project savedProject = projectService.createProject(project);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
-
     }
 
     @PutMapping("/approve/{projectId}")
@@ -82,4 +80,6 @@ public class ProjectController {
             ApiResponse apiResponse = new ApiResponse("Project deleted successfully", true);
             return ResponseEntity.ok(apiResponse);
     }
+
+
 }
