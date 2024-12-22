@@ -61,6 +61,9 @@ public class InternshipController {
     @GetMapping("/student/{studentUsn}")
     public ResponseEntity<List<Internship>> getInternshipsByStudentUsn(@PathVariable String studentUsn) throws NotFoundException {
         List<Internship> internships = internshipService.getInternshipsByStudentUsn(studentUsn);
+        if(internships.isEmpty()){
+            return new ResponseEntity<>(internships, HttpStatus.OK);
+        }
         return new ResponseEntity<>(internships, HttpStatus.OK);
     }
 

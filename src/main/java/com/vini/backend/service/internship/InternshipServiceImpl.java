@@ -9,6 +9,7 @@ import com.vini.backend.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class InternshipServiceImpl implements InternshipService {
             studentRepository.findById(studentUsn)
                     .orElseThrow(() -> new NotFoundException("Student not found with USN " + studentUsn));
         if(internshipRepository.findByStudentUsn(studentUsn).isEmpty()) {
-            throw new NotFoundException("Internship not found with USN " + studentUsn);
+            return new ArrayList<>();
         }
 
         return internshipRepository.findByStudentUsn(studentUsn);
