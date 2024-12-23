@@ -224,7 +224,20 @@ public class ProjectServiceImpl implements ProjectService {
         return students;
     }
 
+    @Override
+    public boolean updateProjectUrls(Long projectId, String studentProjectUrl, String studentProjectReport) {
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
 
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            project.setStudentProjectUrl(studentProjectUrl);
+            project.setStudentProjectReport(studentProjectReport);
+            project.setStudentProjectCompletionStatus("Completed");
+            projectRepository.save(project);
+            return true;
+        }
+        return false;
+    }
 
 }
 

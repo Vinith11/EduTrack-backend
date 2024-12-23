@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -81,5 +82,20 @@ public class ProjectController {
             return ResponseEntity.ok(apiResponse);
     }
 
+    @PutMapping("/{projectId}/update-urls")
+    public ResponseEntity<String> updateProjectUrls(
+            @PathVariable Long projectId,
+            @RequestBody Map<String, String> requestBody) {
+        String projectUrl = requestBody.get("studentProjectUrl");
+        String projectReport = requestBody.get("studentProjectReport");
+
+        boolean isUpdated = projectService.updateProjectUrls(projectId, projectUrl, projectReport);
+
+        if (isUpdated) {
+            return ResponseEntity.ok("Project URLs updated successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
+        }
+    }
 
 }
