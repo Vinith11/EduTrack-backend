@@ -27,9 +27,9 @@ public class ProjectController {
     private FacultyUserService facultyUserService;
 
     @PostMapping("/create")
-    public ResponseEntity<Project> createProject(@RequestBody Project project) throws NotFoundException {
-            Project savedProject = projectService.createProject(project);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
+    public ResponseEntity<ApiResponse> createProject(@RequestBody Project project) throws NotFoundException {
+            String response = String.valueOf(projectService.createProject(project));
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(response, true));
     }
 
     @PutMapping("/approve/{projectId}")

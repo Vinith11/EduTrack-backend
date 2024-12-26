@@ -9,6 +9,7 @@ import com.vini.backend.repositories.FacultyProjectGuideRepository;
 import com.vini.backend.repositories.FacultyRepository;
 import com.vini.backend.repositories.ProjectRepository;
 import com.vini.backend.repositories.StudentRepository;
+import com.vini.backend.response.ApiResponse;
 import com.vini.backend.service.email.EmailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public Project createProject(Project project) throws NotFoundException {
+    public String createProject(Project project) throws NotFoundException {
         // Check student leader and guide existence
         String leaderId = project.getStudentProjectLeaderId();
         Optional<Student> leader = studentRepository.findById(leaderId);
@@ -95,9 +96,13 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         // Send email to faculty for approval
-        emailService.sendApprovalRequestEmail(guide.get().getFacultyEmail(), savedProject);
+        emailService.sendApprovalRequestEmail(guide.get().getFacultyEmail(), savedProject)
+                .exceptionally(throwable -> {
+                    System.err.println("Email sending failed: " + throwable.getMessage());
+                    return null;
+                });
 
-        return savedProject;
+        return "Form submitted successfully";
     }
 
 
