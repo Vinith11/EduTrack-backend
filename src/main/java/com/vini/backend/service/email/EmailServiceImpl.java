@@ -1,6 +1,7 @@
 package com.vini.backend.service.email;
 
 import com.vini.backend.models.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @EnableAsync
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
     @Autowired

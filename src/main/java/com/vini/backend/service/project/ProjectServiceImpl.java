@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
@@ -108,6 +109,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional
     public String approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Project not found."));
