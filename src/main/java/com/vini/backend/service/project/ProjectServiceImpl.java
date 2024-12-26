@@ -108,7 +108,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public Project approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException {
+    public String approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Project not found."));
 
@@ -136,7 +136,13 @@ public class ProjectServiceImpl implements ProjectService {
             facultyProjectGuideRepository.save(guide);
 
             // Send approval email
-            emailService.sendAcceptEmail(leader.getStudentEmail(), project);
+            emailService.sendAcceptEmail(leader.getStudentEmail(), project)
+                    .exceptionally(throwable -> {
+                        System.err.println("Email sending failed: " + throwable.getMessage());
+                        return null;
+                    });
+
+            return "Request approved successfully";
         } else {
             // Reject the project and remove projectId from students
             for (String memberId : project.getTeamMembers()) {
@@ -153,12 +159,15 @@ public class ProjectServiceImpl implements ProjectService {
             studentRepository.save(leader);
 
             // Send rejection email
-            emailService.sendRejectionEmail(leader.getStudentEmail(), project);
+            emailService.sendRejectionEmail(leader.getStudentEmail(), project)                .exceptionally(throwable -> {
+                System.err.println("Email sending failed: " + throwable.getMessage());
+                return null;
+            });
 
             projectRepository.delete(project);
-        }
 
-        return project;
+            return "Request rejected successfully";
+        }
     }
 
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ProjectService {
     String createProject(Project project) throws NotFoundException;
-    Project approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException;
+    String approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException;
     Project completeProject(Long projectId) throws NotFoundException;
     List<Project> pendingAproveProjects(String facultyUid) throws NotFoundException;
     List<Project> getProjectsByFacultyUidByBatch(String facultyUid, String batch) throws NotFoundException;

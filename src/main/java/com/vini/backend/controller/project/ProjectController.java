@@ -33,9 +33,9 @@ public class ProjectController {
     }
 
     @PutMapping("/approve/{projectId}")
-    public ResponseEntity<Project> approveProject(@PathVariable Long projectId, @RequestParam Boolean approvalStatus) throws NotFoundException {
-            Project project = projectService.approveProject(projectId, approvalStatus);
-            return ResponseEntity.ok(project);
+    public ResponseEntity<ApiResponse> approveProject(@PathVariable Long projectId, @RequestParam Boolean approvalStatus) throws NotFoundException {
+            String response = projectService.approveProject(projectId, approvalStatus);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(response, true));
     }
 
     @GetMapping("/project-by-id/{projectId}")
