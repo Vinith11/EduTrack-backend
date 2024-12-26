@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -238,6 +240,35 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return false;
     }
+
+    @Override
+    public List<Faculty> getAvailableFacultyBatchWise(String batch) throws NotFoundException {
+        // Fetch all faculty members from the database
+        List<Faculty> allFaculty = facultyRepository.findAll();
+
+        // Fetch all project guides for the specified batch
+        List<FacultyProjectGuide> projectGuides = facultyProjectGuideRepository.findByBatch(batch);
+
+        // Create a map to count projects assigned to each faculty in the given batch
+        Map<String, Long> facultyCountMap = projectGuides.stream()
+                .collect(Collectors.groupingBy(FacultyProjectGuide::getFacultyUid, Collectors.counting()));
+
+        // Filter faculty based on the conditions
+        List<Faculty> availableFaculty = allFaculty.stream()
+                .filter(faculty -> {
+                    Long count = facultyCountMap.getOrDefault(faculty.getFacultyUid(), 0L);
+                    return count < 2; // Include faculty with less than 2 assignments or not assigned
+                })
+                .collect(Collectors.toList());
+
+        // If no available faculty found, throw NotFoundException
+        if (availableFaculty.isEmpty()) {
+            throw new NotFoundException("No available faculty found for batch: " + batch);
+        }
+
+        return availableFaculty;
+    }
+
 
 }
 

@@ -69,6 +69,12 @@ public class ProjectController {
         return ResponseEntity.ok(students);
     }
 
+    @GetMapping("/available-faculty/{batch}")
+    public ResponseEntity<List<Faculty>> getAvailableFacultyByBatch(@PathVariable String batch) throws NotFoundException {
+        List<Faculty> faculties = projectService.getAvailableFacultyBatchWise(batch);
+        return ResponseEntity.ok(faculties);
+    }
+
     @GetMapping("/{batch}")
     public ResponseEntity<List<Project>> getProjectsByBatch(@PathVariable String batch) throws NotFoundException {
             List<Project> projects = projectService.getProjectsByBatch(batch);

@@ -1,6 +1,7 @@
 package com.vini.backend.service.project;
 
 import com.vini.backend.exception.NotFoundException;
+import com.vini.backend.models.Faculty;
 import com.vini.backend.models.Student;
 import com.vini.backend.models.project.Project;
 
@@ -17,4 +18,5 @@ public interface ProjectService {
     Project getProjectById(Long projectId) throws NotFoundException;
     List<Student> getAvailableStudentsBatchWise(String batch) throws NotFoundException;
     boolean updateProjectUrls(Long projectId, String studentProjectUrl, String studentProjectReport);
+    List<Faculty> getAvailableFacultyBatchWise(String batch) throws NotFoundException;
 }
