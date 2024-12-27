@@ -1,4 +1,4 @@
-package com.vini.backend.dto;
+package com.vini.backend.response;
 
 
 import lombok.AllArgsConstructor;

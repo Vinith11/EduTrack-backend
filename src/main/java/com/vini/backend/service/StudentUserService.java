@@ -1,6 +1,6 @@
 package com.vini.backend.service;
 
-import com.vini.backend.dto.StudentResponseDto;
+import com.vini.backend.response.StudentResponseDto;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Student;
 

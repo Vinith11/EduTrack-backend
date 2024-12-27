@@ -1,7 +1,7 @@
 package com.vini.backend.controller;
 
 
-import com.vini.backend.dto.StudentResponseDto;
+import com.vini.backend.response.StudentResponseDto;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Student;
 import com.vini.backend.service.StudentUserService;
