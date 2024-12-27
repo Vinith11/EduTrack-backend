@@ -6,16 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, String> {
-    public Student findByStudentEmail(String email);
+    Optional<Student> findByStudentEmail(String email);
 
-    public List<Student> findAllStudentByOrderByUsn();
+    List<Student> findAllStudentByOrderByUsn();
 
-    public  Student findByUsn(String usn);
+    Student findByUsn(String usn);
 
-    public List<Student> findByStudentBatch(String batch);
+    List<Student> findByStudentBatch(String batch);
 
     List<Student> findByStudentBatchAndProjectIdIsNull(String batch);
 

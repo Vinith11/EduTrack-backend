@@ -4,24 +4,20 @@ import com.vini.backend.config.JwtTokenProvider;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Faculty;
 import com.vini.backend.repositories.FacultyRepository;
+import com.vini.backend.response.FacultyResponseDto;
 import com.vini.backend.service.FacultyUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class FacultyUserServiceImplementation implements FacultyUserService {
 
-    private FacultyRepository facultyRepository;
-    private JwtTokenProvider jwtTokenProvider;
-
-    public FacultyUserServiceImplementation(FacultyRepository facultyRepository,JwtTokenProvider jwtTokenProvider) {
-
-        this.facultyRepository=facultyRepository;
-        this.jwtTokenProvider=jwtTokenProvider;
-
-    }
+    private final FacultyRepository facultyRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public Faculty findUserById(String userId) throws UserException {
@@ -34,19 +30,23 @@ public class FacultyUserServiceImplementation implements FacultyUserService {
     }
 
     @Override
-    public Faculty findUserProfileByJwt(String jwt) throws UserException {
+    public FacultyResponseDto findUserProfileByJwt(String jwt) throws UserException {
         System.out.println("user service");
         String email=jwtTokenProvider.getEmailFromJwtToken(jwt);
 
         System.out.println("email"+email);
 
-        Faculty faculty=facultyRepository.findByFacultyEmail(email);
+        Faculty faculty=facultyRepository.findByFacultyEmail(email)
+                .orElseThrow(() -> new UserException("user not found with email "+email));
 
-        if(faculty==null) {
-            throw new UserException("user not exist with email "+email);
-        }
+        FacultyResponseDto facultyResponseDto=new FacultyResponseDto();
+        facultyResponseDto.setFacultyEmail(faculty.getFacultyEmail());
+        facultyResponseDto.setFacultyName(faculty.getFacultyName());
+        facultyResponseDto.setFacultyPhone(faculty.getFacultyPhone());
+        facultyResponseDto.setFacultyUid(faculty.getFacultyUid());
+
         System.out.println("email user"+faculty.getFacultyEmail());
-        return faculty;
+        return facultyResponseDto;
     }
 
     @Override

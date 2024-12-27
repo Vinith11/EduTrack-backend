@@ -6,7 +6,7 @@ import com.vini.backend.models.internship.Internship;
 import com.vini.backend.repositories.FacultyRepository;
 import com.vini.backend.repositories.InternshipRepository;
 import com.vini.backend.repositories.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,15 +15,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class InternshipServiceImpl implements InternshipService {
 
-    @Autowired
-    private InternshipRepository internshipRepository;
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private FacultyRepository facultyRepository;
+    private final InternshipRepository internshipRepository;
+    private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
 
     @Override
     public List<Internship> getAllInternships() {

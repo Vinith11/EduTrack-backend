@@ -6,9 +6,10 @@ import com.vini.backend.models.Faculty;
 import com.vini.backend.models.Student;
 import com.vini.backend.models.project.Project;
 import com.vini.backend.response.ApiResponse;
+import com.vini.backend.response.FacultyResponseDto;
 import com.vini.backend.service.FacultyUserService;
 import com.vini.backend.service.project.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
+@RequiredArgsConstructor
 public class ProjectController {
 
-    @Autowired
-    private ProjectService projectService;
-
-    @Autowired
-    private FacultyUserService facultyUserService;
+    private final ProjectService projectService;
+    private final FacultyUserService facultyUserService;
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createProject(@RequestBody Project project) throws NotFoundException {
@@ -52,7 +51,7 @@ public class ProjectController {
 
     @GetMapping("/pending-projects")
     public ResponseEntity<List<Project>> pendingApproveProjects(@RequestHeader("Authorization") String jwt) throws NotFoundException, UserException {
-            Faculty faculty = facultyUserService.findUserProfileByJwt(jwt);
+            FacultyResponseDto faculty = facultyUserService.findUserProfileByJwt(jwt);
             List<Project> projects = projectService.pendingAproveProjects(faculty.getFacultyUid());
             return ResponseEntity.ok(projects);
     }

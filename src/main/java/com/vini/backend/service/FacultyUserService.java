@@ -4,14 +4,13 @@ import java.util.List;
 
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Faculty;
+import com.vini.backend.response.FacultyResponseDto;
 
 public interface FacultyUserService {
 
-    public Faculty findUserById(String userId) throws UserException;
-
-    public Faculty findUserProfileByJwt(String jwt) throws UserException;
-
-    public List<Faculty> findAllUsers();
+    Faculty findUserById(String userId) throws UserException;
+    FacultyResponseDto findUserProfileByJwt(String jwt) throws UserException;
+    List<Faculty> findAllUsers();
 
 }
 

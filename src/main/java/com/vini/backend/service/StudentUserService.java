@@ -10,7 +10,7 @@ public interface StudentUserService {
 
     Student findUserById(String userId) throws UserException;
 
-    Student findUserProfileByJwt(String jwt) throws UserException;
+    StudentResponseDto findUserProfileByJwt(String jwt) throws UserException;
 
     List<Student> findAllUsers();
 

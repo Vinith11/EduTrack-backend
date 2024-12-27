@@ -2,6 +2,7 @@ package com.vini.backend.controller;
 
 
 import com.vini.backend.request.LoginRequestStudent;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,21 +25,17 @@ import com.vini.backend.service.StudentDetailsService;
 
 import jakarta.validation.Valid;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/auth/student")
+@RequiredArgsConstructor
 public class StudentAuthController {
 
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final StudentDetailsService studentDetailsService;
-
-    public StudentAuthController(StudentRepository studentRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, StudentDetailsService studentDetailsService) {
-        this.studentRepository = studentRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.studentDetailsService = studentDetailsService;
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createStudentHandler(@Valid @RequestBody Student student) throws UserException {
@@ -50,11 +47,8 @@ public class StudentAuthController {
         String studentBatch = student.getStudentBatch();
 
 
-        Student isEmailExist = studentRepository.findByStudentEmail(email);
-
-        if (isEmailExist != null) {
-            throw new UserException("Email Is Already Used With Another Account");
-        }
+        Student isEmailExist = studentRepository.findByStudentEmail(email)
+                .orElseThrow(() -> new UserException("User does not exist with email " + email));
 
         student.setStudentPassword(passwordEncoder.encode(password));
         student.setStudentEmail(email);

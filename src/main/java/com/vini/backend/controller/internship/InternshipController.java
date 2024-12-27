@@ -3,9 +3,8 @@ package com.vini.backend.controller.internship;
 import com.vini.backend.exception.NotFoundException;
 import com.vini.backend.models.internship.Internship;
 import com.vini.backend.response.ApiResponse;
-import com.vini.backend.response.AuthResponse;
 import com.vini.backend.service.internship.InternshipService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +15,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/internships")
+@RequiredArgsConstructor
 public class InternshipController {
 
-    @Autowired
-    private InternshipService internshipService;
+    private final InternshipService internshipService;
 
     @GetMapping("/all")
     public List<Internship> getAllInternships() {

@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FacultyRepository extends JpaRepository<Faculty, String> {
-    public Faculty findByFacultyEmail(String email);
+    Optional<Faculty> findByFacultyEmail(String email);
 
-    public List<Faculty> findAllFacultyByOrderByFacultyUid();
+    List<Faculty> findAllFacultyByOrderByFacultyUid();
 
-    public  Faculty findByFacultyUid(String facultyUid);
+    Faculty findByFacultyUid(String facultyUid);
 
 }

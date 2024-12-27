@@ -12,6 +12,7 @@ import com.vini.backend.repositories.StudentRepository;
 import com.vini.backend.response.ApiResponse;
 import com.vini.backend.service.email.EmailService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,22 +23,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private FacultyRepository facultyRepository;
-
-    @Autowired
-    private FacultyProjectGuideRepository facultyProjectGuideRepository;
-
-    @Autowired
-    private EmailService emailService;
+    private final ProjectRepository projectRepository;
+    private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
+    private final FacultyProjectGuideRepository facultyProjectGuideRepository;
+    private final EmailService emailService;
 
 
     @Override

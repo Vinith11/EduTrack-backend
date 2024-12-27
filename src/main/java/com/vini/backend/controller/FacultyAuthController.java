@@ -1,5 +1,6 @@
 package com.vini.backend.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +26,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth/faculty")
+@RequiredArgsConstructor
 public class FacultyAuthController {
 
     private final FacultyRepository facultyRepository;
@@ -32,12 +34,6 @@ public class FacultyAuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final FacultyDetailsService facultyDetailsService;
 
-    public FacultyAuthController(FacultyRepository facultyRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, FacultyDetailsService facultyDetailsService) {
-        this.facultyRepository = facultyRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.facultyDetailsService = facultyDetailsService;
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createFacultyHandler(@Valid @RequestBody Faculty faculty) throws UserException {
@@ -48,11 +44,9 @@ public class FacultyAuthController {
         String facultyRole = faculty.getFacultyRole();
         String facultyUid = faculty.getFacultyUid();
 
-        Faculty isEmailExist = facultyRepository.findByFacultyEmail(email);
+        Faculty isEmailExist = facultyRepository.findByFacultyEmail(email)
+                .orElseThrow(() -> new UserException("Faculty with email " + email + " does not exist"));
 
-        if (isEmailExist != null) {
-            throw new UserException("Email Is Already Used With Another Account");
-        }
 
         faculty.setFacultyPassword(passwordEncoder.encode(password));
         faculty.setFacultyEmail(email);
