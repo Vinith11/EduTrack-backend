@@ -85,7 +85,11 @@ public class StudentAuthController {
     }
 
     private Authentication authenticate(String username, String password) {
-        UserDetails userDetails = studentDetailsService.loadUserByUsername(username);
+        return getAuthentication(password, studentDetailsService.loadUserByUsername(username), passwordEncoder, username);
+    }
+
+    static Authentication getAuthentication(String password, UserDetails userDetails2, PasswordEncoder passwordEncoder, String username) {
+        UserDetails userDetails = userDetails2;
 
         if (userDetails == null) {
             throw new BadCredentialsException("Invalid username or password");

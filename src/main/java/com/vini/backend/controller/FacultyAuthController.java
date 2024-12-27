@@ -24,6 +24,8 @@ import com.vini.backend.service.FacultyDetailsService;
 
 import jakarta.validation.Valid;
 
+import static com.vini.backend.controller.StudentAuthController.getAuthentication;
+
 @RestController
 @RequestMapping("/auth/faculty")
 @RequiredArgsConstructor
@@ -84,15 +86,7 @@ public class FacultyAuthController {
     }
 
     private Authentication authenticate(String username, String password) {
-        UserDetails userDetails = facultyDetailsService.loadUserByUsername(username);
-
-        if (userDetails == null) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        return getAuthentication(password, facultyDetailsService.loadUserByUsername(username), passwordEncoder, username);
     }
 }
 
