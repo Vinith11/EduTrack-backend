@@ -3,6 +3,7 @@ package com.vini.backend.controller.internship;
 import com.vini.backend.exception.NotFoundException;
 import com.vini.backend.models.internship.Internship;
 import com.vini.backend.response.ApiResponse;
+import com.vini.backend.response.InternshipDTO;
 import com.vini.backend.service.internship.InternshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,20 @@ public class InternshipController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Internship> createInternship(@RequestBody Internship internship) throws NotFoundException{
+    public ResponseEntity<Internship> createInternship(@RequestBody InternshipDTO internshipDTO) throws NotFoundException{
+        Internship internship = new Internship();
+        internship.setStudentUsn(internshipDTO.getStudentUsn());
+        internship.setInternshipStart(internshipDTO.getInternshipStart());
+        internship.setInternshipEnd(internshipDTO.getInternshipEnd());
+        internship.setInternshipLocation(internshipDTO.getInternshipLocation());
+        internship.setInternshipDomain(internshipDTO.getInternshipDomain());
+        internship.setCompanyName(internshipDTO.getCompanyName());
+        internship.setInternshipCompletionCertificateUrl(internshipDTO.getInternshipCompletionCertificateUrl());
+        internship.setFacultyUid(internshipDTO.getFacultyUid());
+
+        // Save internship
         Internship createdInternship = internshipService.createInternship(internship);
+
         return new ResponseEntity<>(createdInternship, HttpStatus.CREATED);
     }
 

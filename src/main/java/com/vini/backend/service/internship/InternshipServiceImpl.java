@@ -9,6 +9,7 @@ import com.vini.backend.repositories.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,9 +41,24 @@ public class InternshipServiceImpl implements InternshipService {
     public Internship createInternship(Internship internship) throws NotFoundException {
         if(studentRepository.findById(internship.getStudentUsn()).isEmpty()) {
             throw new NotFoundException("Student not found with USN " + internship.getStudentUsn());
-        } else if(facultyRepository.findByFacultyUid(internship.getFacultyUid()) == null) {
+        }
+
+        if(facultyRepository.findByFacultyUid(internship.getFacultyUid()) == null) {
             throw new NotFoundException("Faculty not found with UID " + internship.getFacultyUid());
         }
+
+        // Calculate duration in months
+        if (internship.getInternshipStart() != null && internship.getInternshipEnd() != null) {
+            long months = ChronoUnit.MONTHS.between(
+                    internship.getInternshipStart().withDayOfMonth(1),
+                    internship.getInternshipEnd().withDayOfMonth(1)
+            );
+            internship.setInternshipDuration(months + " months");
+        } else {
+            internship.setInternshipDuration("Duration not available");
+        }
+
+
         return internshipRepository.save(internship);
     }
 
@@ -60,10 +76,9 @@ public class InternshipServiceImpl implements InternshipService {
             updatedInternship.setInternshipStart(internship.getInternshipStart());
             updatedInternship.setInternshipEnd(internship.getInternshipEnd());
             updatedInternship.setInternshipDuration(internship.getInternshipDuration());
-            updatedInternship.setInternshipCertificate(internship.getInternshipCertificate());
             updatedInternship.setInternshipLocation(internship.getInternshipLocation());
             updatedInternship.setInternshipDomain(internship.getInternshipDomain());
-            updatedInternship.setInternshipEvaluationSheet(internship.getInternshipEvaluationSheet());
+            updatedInternship.setCompanyName(internship.getCompanyName());
             updatedInternship.setInternshipCompletionCertificateUrl(internship.getInternshipCompletionCertificateUrl());
             updatedInternship.setFacultyUid(internship.getFacultyUid());
             return internshipRepository.save(updatedInternship);
