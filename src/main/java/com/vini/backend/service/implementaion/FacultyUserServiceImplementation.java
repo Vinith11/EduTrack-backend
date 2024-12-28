@@ -39,6 +39,23 @@ public class FacultyUserServiceImplementation implements FacultyUserService {
         Faculty faculty=facultyRepository.findByFacultyEmail(email)
                 .orElseThrow(() -> new UserException("user not found with email "+email));
 
+        return getFacultyResponseDto(faculty);
+    }
+
+    @Override
+    public List<Faculty> findAllUsers() {
+        return facultyRepository.findAllFacultyByOrderByFacultyUid();
+    }
+
+    @Override
+    public FacultyResponseDto findUserProfileByUid(String facultyUid) throws UserException {
+        Faculty faculty = facultyRepository.findByFacultyUid(facultyUid)
+                .orElseThrow(() -> new UserException("user not found with uid "+facultyUid));
+
+        return getFacultyResponseDto(faculty);
+    }
+
+    private FacultyResponseDto getFacultyResponseDto(Faculty faculty) {
         FacultyResponseDto facultyResponseDto=new FacultyResponseDto();
         facultyResponseDto.setFacultyEmail(faculty.getFacultyEmail());
         facultyResponseDto.setFacultyName(faculty.getFacultyName());
@@ -47,10 +64,5 @@ public class FacultyUserServiceImplementation implements FacultyUserService {
 
         System.out.println("email user"+faculty.getFacultyEmail());
         return facultyResponseDto;
-    }
-
-    @Override
-    public List<Faculty> findAllUsers() {
-        return facultyRepository.findAllFacultyByOrderByFacultyUid();
     }
 }

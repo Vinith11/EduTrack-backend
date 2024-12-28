@@ -11,6 +11,6 @@ public interface FacultyUserService {
     Faculty findUserById(String userId) throws UserException;
     FacultyResponseDto findUserProfileByJwt(String jwt) throws UserException;
     List<Faculty> findAllUsers();
-
+    FacultyResponseDto findUserProfileByUid(String facultyUid) throws UserException;
 }
 
