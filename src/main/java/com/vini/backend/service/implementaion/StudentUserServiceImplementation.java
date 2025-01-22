@@ -42,6 +42,7 @@ public class StudentUserServiceImplementation implements StudentUserService {
         studentResponseDto.setStudentPhone(student.getStudentPhone());
         studentResponseDto.setStudentBatch(student.getStudentBatch());
         studentResponseDto.setStudentEmail(student.getStudentEmail());
+        studentResponseDto.setProjectId(student.getProjectId());
 
         return studentResponseDto;
     }

@@ -24,6 +24,8 @@ import com.vini.backend.service.FacultyDetailsService;
 
 import jakarta.validation.Valid;
 
+import java.util.Optional;
+
 import static com.vini.backend.controller.StudentAuthController.getAuthentication;
 
 @RestController
@@ -46,8 +48,11 @@ public class FacultyAuthController {
         String facultyRole = faculty.getFacultyRole();
         String facultyUid = faculty.getFacultyUid();
 
-        Faculty isEmailExist = facultyRepository.findByFacultyEmail(email)
-                .orElseThrow(() -> new UserException("Faculty with email " + email + " does not exist"));
+        Optional<Faculty> isEmailExist = facultyRepository.findByFacultyEmail(email);
+        if(isEmailExist.isPresent()) {
+            throw new UserException("Email already exists");
+        }
+
 
 
         faculty.setFacultyPassword(passwordEncoder.encode(password));

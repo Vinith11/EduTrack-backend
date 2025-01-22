@@ -47,8 +47,10 @@ public class StudentAuthController {
         String studentBatch = student.getStudentBatch();
 
 
-        Student isEmailExist = studentRepository.findByStudentEmail(email)
-                .orElseThrow(() -> new UserException("User does not exist with email " + email));
+        Optional<Student> isEmailExist = studentRepository.findByStudentEmail(email);
+        if(isEmailExist.isPresent()) {
+            throw new UserException("Email already exists");
+        }
 
         student.setStudentPassword(passwordEncoder.encode(password));
         student.setStudentEmail(email);
