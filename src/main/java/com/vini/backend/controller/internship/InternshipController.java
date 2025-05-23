@@ -3,9 +3,9 @@ package com.vini.backend.controller.internship;
 import com.vini.backend.exception.NotFoundException;
 import com.vini.backend.models.internship.Internship;
 import com.vini.backend.response.ApiResponse;
-import com.vini.backend.response.AuthResponse;
+import com.vini.backend.response.InternshipDTO;
 import com.vini.backend.service.internship.InternshipService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +16,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/internships")
+@RequiredArgsConstructor
 public class InternshipController {
 
-    @Autowired
-    private InternshipService internshipService;
+    private final InternshipService internshipService;
 
     @GetMapping("/all")
     public List<Internship> getAllInternships() {
@@ -34,8 +34,20 @@ public class InternshipController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Internship> createInternship(@RequestBody Internship internship) throws NotFoundException{
+    public ResponseEntity<Internship> createInternship(@RequestBody InternshipDTO internshipDTO) throws NotFoundException{
+        Internship internship = new Internship();
+        internship.setStudentUsn(internshipDTO.getStudentUsn());
+        internship.setInternshipStart(internshipDTO.getInternshipStart());
+        internship.setInternshipEnd(internshipDTO.getInternshipEnd());
+        internship.setInternshipLocation(internshipDTO.getInternshipLocation());
+        internship.setInternshipDomain(internshipDTO.getInternshipDomain());
+        internship.setCompanyName(internshipDTO.getCompanyName());
+        internship.setInternshipCompletionCertificateUrl(internshipDTO.getInternshipCompletionCertificateUrl());
+        internship.setFacultyUid(internshipDTO.getFacultyUid());
+
+        // Save internship
         Internship createdInternship = internshipService.createInternship(internship);
+
         return new ResponseEntity<>(createdInternship, HttpStatus.CREATED);
     }
 
@@ -61,6 +73,16 @@ public class InternshipController {
     @GetMapping("/student/{studentUsn}")
     public ResponseEntity<List<Internship>> getInternshipsByStudentUsn(@PathVariable String studentUsn) throws NotFoundException {
         List<Internship> internships = internshipService.getInternshipsByStudentUsn(studentUsn);
+        if(internships.isEmpty()){
+            return new ResponseEntity<>(internships, HttpStatus.OK);
+        }
         return new ResponseEntity<>(internships, HttpStatus.OK);
+    }
+
+    @GetMapping("all-by-batch/{batch}")
+    public ResponseEntity<List<Internship>> getInternshipsByBatch(@PathVariable String batch) throws NotFoundException {
+        List<Internship> internships = internshipService.getInternshipsByBatch(batch);
+
+        return ResponseEntity.ok(internships);
     }
 }

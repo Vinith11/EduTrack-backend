@@ -9,34 +9,32 @@ import com.vini.backend.repositories.FacultyProjectGuideRepository;
 import com.vini.backend.repositories.FacultyRepository;
 import com.vini.backend.repositories.ProjectRepository;
 import com.vini.backend.repositories.StudentRepository;
+import com.vini.backend.response.ApiResponse;
 import com.vini.backend.service.email.EmailService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+    private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
+    private final FacultyProjectGuideRepository facultyProjectGuideRepository;
+    private final EmailService emailService;
 
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private FacultyRepository facultyRepository;
-
-    @Autowired
-    private FacultyProjectGuideRepository facultyProjectGuideRepository;
-
-    @Autowired
-    private EmailService emailService;
 
     @Override
-    public Project createProject(Project project) throws NotFoundException {
+    public String createProject(Project project) throws NotFoundException {
         // Check student leader and guide existence
         String leaderId = project.getStudentProjectLeaderId();
         Optional<Student> leader = studentRepository.findById(leaderId);
@@ -48,14 +46,12 @@ public class ProjectServiceImpl implements ProjectService {
             throw new NotFoundException("Faculty guide not found.");
         }
 
-        if(projectRepository.existsByStudentProjectLeaderId(leaderId)){
+        if (projectRepository.existsByStudentProjectLeaderId(leaderId)) {
             throw new NotFoundException("Student with USN " + leaderId + " already has a project.");
         }
 
-
-
-        if(project.getTeamMembers().size()>3 || project.getTeamMembers().isEmpty()){
-            throw new NotFoundException("Team members should not exceed 3 or be less than 1" );
+        if (project.getTeamMembers().size() > 3 || project.getTeamMembers().isEmpty()) {
+            throw new NotFoundException("Team members should not exceed 3 or be less than 1");
         }
 
         // Check if team members are not already part of another group
@@ -65,7 +61,7 @@ public class ProjectServiceImpl implements ProjectService {
             if (teamMember.getProjectId() != null) {
                 throw new NotFoundException("Student with USN " + memberId + " is already part of another group.");
             }
-            if(projectRepository.existsByTeamMembersContaining(memberId)){
+            if (projectRepository.existsByTeamMembersContaining(memberId)) {
                 throw new NotFoundException("Student with USN " + memberId + " is already part of another group.");
             }
         }
@@ -76,28 +72,44 @@ public class ProjectServiceImpl implements ProjectService {
             throw new NotFoundException("Faculty guide has already reached the maximum group limit.");
         }
 
-        project.setFacultyApprovalStatus(false); // Set default approval status as false
+        project.setFacultyApprovalStatus(false); // Default approval status is false
 
+        // Save project to obtain project ID
         Project savedProject = projectRepository.save(project);
 
+        // Assign projectId to leader and team members
+        Student projectLeader = leader.get();
+        projectLeader.setProjectId(savedProject.getProjectId());
+        studentRepository.save(projectLeader);
+
+        for (String memberId : project.getTeamMembers()) {
+            Student teamMember = studentRepository.findById(memberId)
+                    .orElseThrow(() -> new NotFoundException("Student with USN " + memberId + " not found."));
+            teamMember.setProjectId(savedProject.getProjectId());
+            studentRepository.save(teamMember);
+        }
+
         // Send email to faculty for approval
+        emailService.sendApprovalRequestEmail(guide.get().getFacultyEmail(), savedProject)
+                .exceptionally(throwable -> {
+                    System.err.println("Email sending failed: " + throwable.getMessage());
+                    return null;
+                });
 
-        emailService.sendApprovalRequestEmail(guide.get().getFacultyEmail(), savedProject);
-
-
-
-        return savedProject;
+        return "Form submitted successfully";
     }
 
+
+
     @Override
-    public Project approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException {
+    @Transactional
+    public String approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Project not found."));
 
-
         if (approvalStatus) {
-            // Check faculty guide's group limit
-            if(project.getFacultyApprovalStatus()){
+            // Approve the project
+            if (project.getFacultyApprovalStatus()) {
                 throw new NotFoundException("Project already approved.");
             }
 
@@ -112,37 +124,48 @@ public class ProjectServiceImpl implements ProjectService {
             Student leader = studentRepository.findById(project.getStudentProjectLeaderId())
                     .orElseThrow(() -> new NotFoundException("Leader not found."));
             leader.setLeader(true);
-            leader.setProjectId(project.getProjectId());
             studentRepository.save(leader);
-
-            // Update team members
-            for (String memberId : project.getTeamMembers()) {
-                Student member = studentRepository.findById(memberId)
-                        .orElseThrow(() -> new NotFoundException("Member not found."));
-                member.setProjectId(project.getProjectId());
-                studentRepository.save(member);
-            }
 
             // Add to FacultyProjectGuide
             FacultyProjectGuide guide = new FacultyProjectGuide(null, project.getProjectId(), project.getStudentProjectGuideId(), project.getAcademicYear());
             facultyProjectGuideRepository.save(guide);
 
-            // Send approval email to students
+            // Send approval email
+            emailService.sendAcceptEmail(leader.getStudentEmail(), project)
+                    .exceptionally(throwable -> {
+                        System.err.println("Email sending failed: " + throwable.getMessage());
+                        return null;
+                    });
 
-                emailService.sendAcceptEmail(leader.getStudentEmail(), project);
-
+            return "Request approved successfully";
         } else {
+            // Reject the project and remove projectId from students
+            for (String memberId : project.getTeamMembers()) {
+                Student member = studentRepository.findById(memberId)
+                        .orElseThrow(() -> new NotFoundException("Student with USN " + memberId + " not found."));
+                member.setProjectId(null);
+                studentRepository.save(member);
+            }
+
             Student leader = studentRepository.findById(project.getStudentProjectLeaderId())
                     .orElseThrow(() -> new NotFoundException("Leader not found."));
-            // Project rejected, delete project and revert any changes
+            leader.setLeader(false);
+            leader.setProjectId(null);
+            studentRepository.save(leader);
 
-                emailService.sendRejectionEmail(leader.getStudentEmail(), project);
+            // Send rejection email
+            emailService.sendRejectionEmail(leader.getStudentEmail(), project)                .exceptionally(throwable -> {
+                System.err.println("Email sending failed: " + throwable.getMessage());
+                return null;
+            });
 
             projectRepository.delete(project);
-        }
 
-        return project;
+            return "Request rejected successfully";
+        }
     }
+
+
 
     @Override
     public Project completeProject(Long projectId) throws NotFoundException {
@@ -196,5 +219,65 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectRepository.delete(project);
     }
+
+    @Override
+    public Project getProjectById(Long projectId) throws NotFoundException {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundException("Project not found."));
+    }
+
+    @Override
+    public List<Student> getAvailableStudentsBatchWise(String batch) throws NotFoundException {
+        List<Student> students = studentRepository.findByStudentBatchAndProjectIdIsNull(batch);
+        if (students.isEmpty()) {
+            throw new NotFoundException("No available students found for batch: " + batch);
+        }
+        return students;
+    }
+
+    @Override
+    public boolean updateProjectUrls(Long projectId, String studentProjectUrl, String studentProjectReport) {
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
+
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            project.setStudentProjectUrl(studentProjectUrl);
+            project.setStudentProjectReport(studentProjectReport);
+            project.setStudentProjectCompletionStatus("Completed");
+            projectRepository.save(project);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<Faculty> getAvailableFacultyBatchWise(String batch) throws NotFoundException {
+        // Fetch all faculty members from the database
+        List<Faculty> allFaculty = facultyRepository.findAll();
+
+        // Fetch all project guides for the specified batch
+        List<FacultyProjectGuide> projectGuides = facultyProjectGuideRepository.findByBatch(batch);
+
+        // Create a map to count projects assigned to each faculty in the given batch
+        Map<String, Long> facultyCountMap = projectGuides.stream()
+                .collect(Collectors.groupingBy(FacultyProjectGuide::getFacultyUid, Collectors.counting()));
+
+        // Filter faculty based on the conditions
+        List<Faculty> availableFaculty = allFaculty.stream()
+                .filter(faculty -> {
+                    Long count = facultyCountMap.getOrDefault(faculty.getFacultyUid(), 0L);
+                    return count < 2; // Include faculty with less than 2 assignments or not assigned
+                })
+                .collect(Collectors.toList());
+
+        // If no available faculty found, throw NotFoundException
+        if (availableFaculty.isEmpty()) {
+            throw new NotFoundException("No available faculty found for batch: " + batch);
+        }
+
+        return availableFaculty;
+    }
+
+
 }
 

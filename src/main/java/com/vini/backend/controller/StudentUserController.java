@@ -1,40 +1,39 @@
 package com.vini.backend.controller;
 
 
+import com.vini.backend.response.StudentResponseDto;
 import com.vini.backend.exception.UserException;
 import com.vini.backend.models.Student;
 import com.vini.backend.service.StudentUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/student/users")
+@RequiredArgsConstructor
 public class StudentUserController {
-    private StudentUserService studentUserService;
-
-    public StudentUserController(StudentUserService studentUserService) {
-        this.studentUserService = studentUserService;
-    }
+    private final StudentUserService studentUserService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Student>> getAllUsers(@RequestHeader("Authorization") String jwt) {
-        System.out.println("/api/student/users/all");
         List<Student> student = studentUserService.findAllUsers();
         return ResponseEntity.ok(student);
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<Student> getUserProfileHandler(@RequestHeader("Authorization") String jwt) throws UserException {
-        System.out.println("/api/student/users/profile");
-        Student student = studentUserService.findUserProfileByJwt(jwt);
-        return new ResponseEntity<Student>(student,HttpStatus.ACCEPTED);
+    public ResponseEntity<StudentResponseDto> getUserProfileHandler(@RequestHeader("Authorization") String jwt) throws UserException {
+        StudentResponseDto student = studentUserService.findUserProfileByJwt(jwt);
+        return new ResponseEntity<>(student,HttpStatus.OK);
     }
 
+    @GetMapping("/batch/{batch}")
+    public ResponseEntity<List<StudentResponseDto>> getStudentsByBatch(@PathVariable String batch) {
+        List<StudentResponseDto> response = studentUserService.getStudentsByBatch(batch);
+        return ResponseEntity.ok(response);
+    }
 
 }

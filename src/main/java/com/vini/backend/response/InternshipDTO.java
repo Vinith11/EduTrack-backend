@@ -1,38 +1,23 @@
-// src/main/java/com/vini/backend/models/Internship.java
-package com.vini.backend.models.internship;
+package com.vini.backend.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDate;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Internship {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long internshipId;
+public class InternshipDTO {
     private String studentUsn;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate internshipStart;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate internshipEnd;
-
-    private String internshipDuration;
-
+    private String internshipDuration; // Calculated in the service
     private String internshipLocation;
     private String internshipDomain;
     private String companyName;
     private String internshipCompletionCertificateUrl;
-
     private String facultyUid;
-
 }

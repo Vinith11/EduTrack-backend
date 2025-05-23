@@ -1,5 +1,6 @@
 package com.vini.backend.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,8 +24,13 @@ import com.vini.backend.service.FacultyDetailsService;
 
 import jakarta.validation.Valid;
 
+import java.util.Optional;
+
+import static com.vini.backend.controller.StudentAuthController.getAuthentication;
+
 @RestController
 @RequestMapping("/auth/faculty")
+@RequiredArgsConstructor
 public class FacultyAuthController {
 
     private final FacultyRepository facultyRepository;
@@ -32,12 +38,6 @@ public class FacultyAuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final FacultyDetailsService facultyDetailsService;
 
-    public FacultyAuthController(FacultyRepository facultyRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, FacultyDetailsService facultyDetailsService) {
-        this.facultyRepository = facultyRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.facultyDetailsService = facultyDetailsService;
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createFacultyHandler(@Valid @RequestBody Faculty faculty) throws UserException {
@@ -48,11 +48,12 @@ public class FacultyAuthController {
         String facultyRole = faculty.getFacultyRole();
         String facultyUid = faculty.getFacultyUid();
 
-        Faculty isEmailExist = facultyRepository.findByFacultyEmail(email);
-
-        if (isEmailExist != null) {
-            throw new UserException("Email Is Already Used With Another Account");
+        Optional<Faculty> isEmailExist = facultyRepository.findByFacultyEmail(email);
+        if(isEmailExist.isPresent()) {
+            throw new UserException("Email already exists");
         }
+
+
 
         faculty.setFacultyPassword(passwordEncoder.encode(password));
         faculty.setFacultyEmail(email);
@@ -90,15 +91,7 @@ public class FacultyAuthController {
     }
 
     private Authentication authenticate(String username, String password) {
-        UserDetails userDetails = facultyDetailsService.loadUserByUsername(username);
-
-        if (userDetails == null) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        return getAuthentication(password, facultyDetailsService.loadUserByUsername(username), passwordEncoder, username);
     }
 }
 
