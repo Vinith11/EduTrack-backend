@@ -8,6 +8,7 @@ import com.vini.backend.models.project.Project;
 import java.util.List;
 
 public interface ProjectService {
+
     String createProject(Project project) throws NotFoundException;
     String approveProject(Long projectId, Boolean approvalStatus) throws NotFoundException;
     Project completeProject(Long projectId) throws NotFoundException;
