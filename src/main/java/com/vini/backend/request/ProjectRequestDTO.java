@@ -1,38 +1,17 @@
 package com.vini.backend.request;
 
 import com.vini.backend.models.project.Project;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectRequestDTO {
 
     private Project project;
-    private List<String> teamMembers;
-
-    // Default constructor
-    public ProjectRequestDTO() {
-    }
-
-    // Parameterized constructor
-    public ProjectRequestDTO(Project project, List<String> teamMembers) {
-        this.project = project;
-        this.teamMembers = teamMembers;
-    }
-
-    // Getters and Setters
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public List<String> getTeamMembers() {
-        return teamMembers;
-    }
-
-    public void setTeamMembers(List<String> teamMembers) {
-        this.teamMembers = teamMembers;
-    }
+    private String teamMembers;
 }

@@ -22,8 +22,7 @@ public class Project {
 
     private String studentProjectLeaderId;
 
-    @ElementCollection
-    private List<String> teamMembers; // List of USNs of team members
+    private String teamMembers; // List of USNs of team members
 
     private String studentProjectGuideId;  // Faculty assigned as a guide
     private String studentProjectDomain;

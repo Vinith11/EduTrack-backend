@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,12 +51,14 @@ public class ProjectServiceImpl implements ProjectService {
             throw new NotFoundException("Student with USN " + leaderId + " already has a project.");
         }
 
-        if (project.getTeamMembers().size() > 3 || project.getTeamMembers().isEmpty()) {
+        List<String> teamMembersList = Arrays.asList(project.getTeamMembers().split("\\s+"));
+
+        if (teamMembersList.size() > 3 || project.getTeamMembers().isEmpty()) {
             throw new NotFoundException("Team members should not exceed 3 or be less than 1");
         }
 
         // Check if team members are not already part of another group
-        for (String memberId : project.getTeamMembers()) {
+        for (String memberId : teamMembersList) {
             Student teamMember = studentRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundException("Student with USN " + memberId + " not found."));
             if (teamMember.getProjectId() != null) {
@@ -82,7 +85,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectLeader.setProjectId(savedProject.getProjectId());
         studentRepository.save(projectLeader);
 
-        for (String memberId : project.getTeamMembers()) {
+        for (String memberId : teamMembersList) {
             Student teamMember = studentRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundException("Student with USN " + memberId + " not found."));
             teamMember.setProjectId(savedProject.getProjectId());
@@ -139,8 +142,10 @@ public class ProjectServiceImpl implements ProjectService {
 
             return "Request approved successfully";
         } else {
+            List<String> teamMembersList = Arrays.asList(project.getTeamMembers().split("\\s+"));
+
             // Reject the project and remove projectId from students
-            for (String memberId : project.getTeamMembers()) {
+            for (String memberId : teamMembersList) {
                 Student member = studentRepository.findById(memberId)
                         .orElseThrow(() -> new NotFoundException("Student with USN " + memberId + " not found."));
                 member.setProjectId(null);
@@ -209,8 +214,8 @@ public class ProjectServiceImpl implements ProjectService {
         leader.setProjectId(null);
         studentRepository.save(leader);
 
-        List<String> members = project.getTeamMembers();
-        for (String memberId : members) {
+        List<String> teamMembersList = Arrays.asList(project.getTeamMembers().split("\\s+"));
+        for (String memberId : teamMembersList) {
             Student member = studentRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundException("Member not found."));
             member.setProjectId(null);
